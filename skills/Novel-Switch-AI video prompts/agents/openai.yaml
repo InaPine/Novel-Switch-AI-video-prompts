@@ -1,0 +1,7 @@
+interface:
+  display_name: "Novel-Switch-AI video prompts"
+  short_description: >-
+    Novel excerpt to horizontal short-drama script (16:9), video-generation shot
+    list, and AI scene prompts — three Markdown files.
+policy:
+  allow_implicit_invocation: false
