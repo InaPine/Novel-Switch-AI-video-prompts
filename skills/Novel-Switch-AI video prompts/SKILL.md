@@ -2,17 +2,20 @@
 name: novel-switch-ai-video-prompts
 description: >-
   Convert a novel excerpt into three production-ready artifacts, always as Markdown files:
-  (1) a realistic horizontal short-drama screenplay (16:9), (2) a video-generation shot
+  (1) a horizontal short-drama screenplay (16:9), (2) a video-generation shot
   list with per-shot composition and second-by-second audio timelines, and (3) AI
   image-generation scene prompts with verifiably consistent lighting and materials.
+  The default art style is photorealistic (realistic 写实), and the user can customize
+  the art style (自定义画风) — anime 动漫, watercolor 水墨/水彩, 3D render, cyberpunk,
+  pixel art, etc. — which then applies consistently across all three outputs.
   Use this skill whenever the user pastes or provides novel text (fiction, light novel,
   web novel, prose, 小说片段, 原文) and asks for anything like 剧本, 短剧剧本, 改编,
   改写成剧本, 分镜, 分镜脚本, 视频生成方案, 镜头表, 场景提示词, AI绘图场景, 场景描述,
-  screenplay, storyboard, shot list, video generation prompts, scene prompts, or AI
-  scene images — even if they only say "改编" or "做成短剧". Trigger on Chinese and
+  画风, 风格, screenplay, storyboard, shot list, video generation prompts, scene prompts,
+  or AI scene images — even if they only say "改编" or "做成短剧". Trigger on Chinese and
   English phrasings alike.
 metadata:
-  version: 1.0.0
+  version: 1.3.0
   license: MIT
   tags: [screenwriting, short-drama, video-generation, ai-prompting, novel-adaptation]
 ---
@@ -49,6 +52,39 @@ metadata:
 
 ---
 
+## 画风配置（自定义画风）
+
+本 skill 默认输出**写实画风**，但允许用户自定义画风，画风贯穿三个阶段的所有输出。
+
+### 规则
+
+1. **默认画风**：写实（`Photorealistic`）——现实主义电视剧质感（如《漫长的季节》《隐秘的角落》）。
+2. **用户指定优先**：用户明确说出画风（如"动漫风""水墨风""3D 渲染""赛博朋克""像素风"）时，用该画风覆盖默认；用户未提及时保持写实，不要自作主张换画风。
+3. **画风影响范围（三处必须一致）**：
+   - 阶段一：剧本的"角色设定/风格底线"按画风适配（写实＝自然克制表演＋自然光；动漫＝允许夸张表情与明快配色；3D＝强调体积与质感；水彩＝柔化轮廓与低饱和色；其余画风类推）。
+   - 阶段二：分镜的画面内容与光线质感描述按画风适配（但"景别/机位/时间轴"等技术参数不变）。
+   - 阶段三：场景提示词的**英文画风后缀**按下方画风表替换（默认是 `Photorealistic`）。
+4. **预设画风表**（用户说出关键词时替换；表外的画风按用户原话直译成英文画风词，如"蒸汽朋克"→`Steampunk style`）：
+
+| 用户说法（关键词） | 英文画风词（替换 Photorealistic） |
+|-------------------|----------------------------------|
+| 写实 / 现实 / 真人 / 默认（不指定） | Photorealistic |
+| 动漫 / 日漫 / 二次元 / 动画 | Anime style |
+| 国漫 / 2D动画 / 卡通 | 2D animation style |
+| 3D / 三维渲染 / 皮克斯 | 3D render, Pixar-style |
+| 美漫 / 漫画 / 美式 | Comic book style |
+| 水彩 / 水墨 / 中国风 | Watercolor / ink-wash painting style |
+| 油画 / 古典 | Oil painting style |
+| 像素 / 复古游戏 / 8bit | Pixel art |
+| 赛博朋克 / 科幻霓虹 | Cyberpunk style |
+| 胶片 / 电影感 / 复古胶片 | Cinematic, film grain |
+
+5. **输出时显式声明画风**：每份文件开头标注 `画风：<中文名>（<英文画风词>）`，例如"画风：写实（Photorealistic）"或"画风：动漫（Anime style）"，便于核对三阶段一致。
+6. **后缀措辞适配**：除画风词外，后缀中与写实/摄影相关的措辞也按画风适配——`natural or artificial lighting as per context` 在特定画风下改为对应光照描述（如赛博朋克→`neon lighting`、水墨→`soft ambient light`）；`realistic material textures`、`commercial photography style`、`cinematic color grading` 等措辞与动漫/水墨等画风冲突时，替换为与画风一致的措辞或直接删除。默认写实画风下保留全部原措辞。
+7. **画风不改变剧情时间与氛围**：画风只改变表现手法，不改变场景的时间/天气/明暗设定——雨夜就是雨夜，即使画风是"明快配色"的动漫也要保持夜景氛围，此时按画风调整调色倾向即可（如动漫夜景→冷暖高对比、赛璐璐式打光；水墨夜景→更深的墨色层次与留白）。
+
+---
+
 ## 阶段一：小说片段 → 横屏短剧剧本
 
 ### 角色设定
@@ -77,6 +113,8 @@ metadata:
 6. 检查每个镜头的**左右空间利用**——左右留白是否在叙事。
 
 ### 风格底线
+
+以下为**默认写实画风**下的底线；用户指定了画风时，按"画风配置"小节适配对应画风的视觉基调（如动漫风允许夸张表情与明快配色、3D 风强调体积光影），但"拒绝舞台剧式浮夸、表演自然"的总体要求只在写实画风下生效。
 
 - **视觉基调**：参考现实主义电视剧质感（如《漫长的季节》《隐秘的角落》），拒绝过度磨皮和影楼光效。
 - **表演风格**：自然、克制、生活化，拒绝夸张的瞪眼、捂嘴、大动作反应。
@@ -159,7 +197,7 @@ metadata:
 ### 镜头编号与字段计数
 
 - **编号全局连续**：镜头从 1 开始，跨场景不重置（镜头1、镜头2、……一直到全剧最后一个镜头）。
-- **每镜共 11 项字段**：起始帧构图含 6 个子项（景别/视角/画面人物/人物朝向/位置关系/画面重心）+ 动态时间轴 + 语音时间轴 + 运镜 + 衔接说明。不要写成"8 个字段"，以免口径混乱。
+- **每镜字段结构（共 5 个顶层字段）**：① 起始帧构图（容器字段，内含 6 个子项：景别/视角/画面人物/人物朝向/位置关系/画面重心）② 动态时间轴 ③ 语音时间轴 ④ 运镜 ⑤ 衔接说明。统计口径统一以"5 个顶层字段（起始帧构图含 6 子项）"为准，避免"8/10/11 项"之类的计数歧义。
 
 ### 镜头输出格式（每个镜头必须包含全部字段）
 
@@ -207,13 +245,13 @@ metadata:
 
 - 描绘该场景所在区域的全局环境。
 - 必须包含：空间结构（层高/开间）、天花板/穹顶/天空描述、主要光源方向与色温、整体色调、标志性建筑元素（护栏/柱子/地面材质/店铺门面等）。
-- 画风后缀固定为：
+- 画风后缀固定为（`Photorealistic` 为**默认写实**，用户指定画风时按"画风配置"小节替换为对应英文画风词）：
   `Photorealistic, architectural/environmental wide-angle shot, deep depth of field, 8k hyper-detailed, natural or artificial lighting as per context, cinematic color grading, commercial photography style.`
 
 ### 二、俯视平面布局图（1条提示词）
 
 - 鸟瞰俯视图或等轴测图；清晰标注各场景编号的相对位置（用色块/数字/标签）。
-- 画风后缀固定为：
+- 画风后缀固定为——**注意：本模板句首没有 Photorealistic，必须在句首显式补入画风词**（默认写实为 `Photorealistic, Top-down isometric aerial view, ...`；用户指定画风时替换为对应画风词，如 `Anime style, Top-down isometric aerial view, ...`）：
   `Top-down isometric aerial view, architectural floor plan or site map style, clear spatial layout with numbered zones, realistic material textures, ultra HD, 8k.`
 
 ### 三、各小场景特写（每个编号各1条）
@@ -223,7 +261,7 @@ metadata:
 - 内容只描述**纯场景空景**（无人物、无角色），聚焦于：建筑空间结构、墙面与地面材质纹理、光线方向与阴影分布、植物/道具摆放、窗外/远处可见物、色彩氛围。
 - **重复编号处理**：若同一地点在场景列表中出现多个编号（阶段一已按"地点·子位置"区分），每个编号仍各出 1 条特写，但取景范围按子位置拆分（如"玄关·门边"特写门缝光带、"玄关·鞋柜旁"特写拖鞋与鞋柜），不得输出两条几乎相同的图。
 - 同一场景下连续编号要保证光照方向和建筑结构的一致性。
-- 画风后缀统一为（`[主要光源方向]` 是**占位符，必须替换**为统一设定表中的具体光源描述，如"west-side floor-to-ceiling windows, low afternoon sunlight"；禁止把方括号原文照抄进提示词）：
+- 画风后缀统一为（`Photorealistic` 为**默认写实**，用户指定画风时按"画风配置"小节替换；`[主要光源方向]` 是**占位符，必须替换**为统一设定表中的具体光源描述，如"west-side floor-to-ceiling windows, low afternoon sunlight"；禁止把方括号原文照抄进提示词）：
   `Photorealistic, consistent lighting from [主要光源方向], same architectural materials, deep focus, 8k hyper-detailed, unified color palette.`
 
 ### 四、排版拼接方案
@@ -256,8 +294,9 @@ metadata:
 - [ ] 剧本：人物表含无名角色规则（未具名角色标注"（未具名）"）；场景列表对重复地点按"地点·子位置"区分
 - [ ] 剧本：已输出**统一设定表**（光源/色温/主色调/材质/结构件/道具）
 - [ ] 分镜：单镜 ≤10 秒；编号全局连续；话轮切换、沉默反应、空镜均单独成镜
-- [ ] 分镜：每镜 11 项字段齐全（起始帧构图 6 子项 + 动态/语音时间轴 + 运镜 + 衔接说明）；空镜的"画面人物/人物朝向"填 `无`/`—`；无台词场景的语音时间轴只标环境音
+- [ ] 分镜：每镜 5 个顶层字段齐全（起始帧构图含 6 子项 + 动态/语音时间轴 + 运镜 + 衔接说明）；空镜的"画面人物/人物朝向"填 `无`/`—`；无台词场景的语音时间轴只标环境音
 - [ ] 分镜：衔接说明注明景别递进/机位角度/视线匹配
 - [ ] 场景提示词：六部分齐全（含第零部分统一设定表）；特写部分纯空景无人物
 - [ ] 场景提示词：`[主要光源方向]` 占位符已替换为具体光源；特写视角回推自剧本【镜头】字段；重复编号已按子位置拆分
+- [ ] 画风：三阶段画风一致（每份文件开头标注"画风：…"）；英文画风后缀与画风配置相符（默认 Photorealistic，用户指定画风时已替换）；布局图后缀句首已补入画风词；与画风冲突的写实措辞（realistic material textures / commercial photography style 等）已按规则 6 适配
 - [ ] 三份文件：统一设定表、角色、场景、光线方向、材质前后一致
