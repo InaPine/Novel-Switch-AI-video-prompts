@@ -20,14 +20,14 @@
 |------|------|------|----------|
 | 一 | 小说片段 | **横屏短剧剧本**（16:9） | 人物表+场景列表+统一设定表；逐场戏（场景/时长/镜头/画面内容/对白/环境音/运镜建议）；每集 6-12 场、每场 15-45 秒；心理描写 100% 外化为动作/表情/道具；环境音每场必标 |
 | 二 | 剧本 | **视频生成分镜方案** | 按话轮/景别/机位/沉默反应拆分为独立镜头，单镜 ≤10 秒；每镜含起始帧构图（6 子项）+动态时间轴+语音时间轴+运镜+衔接说明；编号全局连续 |
-| 三 | 剧本场景列表 | **AI 绘图场景提示词** | 统一设定表+空间基准表；**★空间锚点图（特殊列出、先生成）**+宏观整体图+各小场景空景特写（含空间定位行）+排版拼接方案+一致性提醒；特写纯空景无人物；英文画风后缀固定格式；光照/材质/空间可验证 |
+| 三 | 剧本场景列表 | **AI 绘图场景提示词（两部分）** | 〇统一设定+空间基准表；**第一部分=空间锚点图（文生图）**；**第二部分=最终合成图（一整段提示词·一次图生图·AI 排版）**——锚点图为空间与画面内容唯一来源，提示词零物品名词、每格只含"机位+画面风格"，每格带"序号+名称"方位功能词图注；特写格纯空景无人物；英文画风后缀固定格式 |
 
 核心特性：
 
 - **写实铁律**：默认写实画风——拒绝舞台剧式表演、拒绝旁白式心理叙述，所有内心活动转化为观众能看到的动作与道具
 - **🎨 自定义画风（v1.2.0 新增）**：默认输出写实（Photorealistic），用户说"动漫风""水墨风""3D 渲染""赛博朋克""像素风"等即可切换画风，画风贯穿三阶段——剧本视觉基调、分镜光线质感、场景提示词英文后缀全部一致（预设画风表见 SKILL.md"画风配置"小节）
 - **共用世界设定**：阶段一输出"统一设定表"（光源方向/色温/主色调/材质清单/结构件）+ **空间基准表**（空间尺寸/四面墙功能/固定布局/机位坐标系），阶段二、三强制复用，保证三份文件像同一部戏
-- **空间一致性（v1.4→v1.5）**：宏观图/布局图/特写共用同一坐标系——**空间锚点图特殊列出、最先单独生成**（★标记），随后宏观图与各特写**以锚点图为参考图（图生图/垫图/ControlNet）**生成；每条特写带"空间定位"行，宏观图带主视角方位，缓解生图 AI 跨图几何漂移
+- **空间一致性（v1.4→v1.11.1）**：空间锚点图为空间与画面内容**唯一来源**——第一部分文生图生成锚点图；第二部分一次图生图（锚点图作参考图），提示词**零物品名词**、每格只含"机位+画面风格"，AI 完成排版（宏观大格置顶 + 特写按动线 + 每格"序号+名称"方位功能词图注），缓解生图 AI 跨图几何漂移
 - **可直接投喂生成模型**：分镜每个镜头构图自洽独立，场景提示词带固定英文后缀，均可单独作为文生图/文生视频提示词
 - **自动落盘**：三份产物自动写入当前工作目录
 
@@ -90,14 +90,14 @@ python -m pip install pyyaml
 
 **优先级约定**：你的显式指令（指定路径/文件名/篇幅/画风）优先于 skill 默认写法；片段撑不满 6 场时按实际内容定场数，不会为凑数虚构剧情。
 
-### 拿到场景提示词后的两步生图流程（v1.5.0）
+### 拿到场景提示词后的使用流程（v1.11.1，只需两次操作，空间唯一来源=锚点图）
 
-场景提示词文件会把"空间锚点图"特殊列出（★标记），生图时请严格按两步走，否则宏观图/平面图/特写会各生成各的空间：
+场景提示词严格分成**两部分**：
 
-1. **第 1 步·先生成空间锚点图**：用"★ 空间锚点图"的提示词单独生成俯视平面布局图，保存为空间基准
-2. **第 2 步·用锚点图图生图**：宏观图与每条特写，都把锚点图（或其局部裁剪）作为**参考图/垫图/ControlNet** 输入生图工具，文字提示词只描述该视角下与锚点图的差异
+1. **复制第一部分（空间锚点图）→ 文生图**：单独生成俯视平面布局图（唯一包含空间布局信息的提示词），保存为锚点图
+2. **复制第二部分（最终合成图，一整段提示词）→ 一次图生图**：把锚点图作为**参考图/垫图**输入，粘贴整段提示词——**AI 的空间与画面内容唯一来自锚点图**，提示词不含房间布局、也**不含任何物品/道具/结构的描写**（零物品名词），每格只给"机位（从锚点图何处、面朝何方）+ 画面风格（画风/光效氛围）"；AI 一次完成生成+排版，输出宏观大格置顶、特写按动线排列、每格带"序号+名称"图注（方位+功能词，如 SCENE 1: NORTH ENTRY，宏观标 MACRO）的合成图，按格子索引裁剪即可取单图
 
-生图工具不支持参考图时才退化为纯文生图——此时提示词里的"空间基准表 + 空间定位行"只能降低空间漂移概率，无法完全消除。
+> 注意：本方案依赖"参考图"能力——生图工具必须支持参考图/垫图（模型从锚点图读取空间）。若工具不支持参考图，空间一致性无法保证，应更换支持参考图的工具。
 
 ### 方式二：手动按指令执行
 
@@ -158,34 +158,23 @@ python "skills\Novel-Switch-AI video prompts\scripts\quick_validate.py" "skills\
 衔接说明：开场镜头，确立"开放式厨房+餐桌"同一空间与左右人物位置，为镜头5的横向调度和正反打做机位铺垫。
 ```
 
-### 输出 3：AI 绘图场景提示词（v1.5.0 结构节选，完整见 `examples/suspense-inkwash/场景AI绘图提示词_v1.5.0.md`）
+### 输出 3：AI 绘图场景提示词（v1.11.1 结构节选，完整见 `examples/suspense-inkwash/场景AI绘图提示词_v1.11.1.md`）
 
-场景提示词按"〇 统一设定+空间基准表 → ★ 空间锚点图 → 宏观图 → 特写 → 排版 → 一致性"组织，空间锚点图特殊列出：
+场景提示词严格分**两部分**：第一部分=空间锚点图（文生图）；第二部分=最终合成图（一次图生图，锚点图为空间唯一来源，提示词零物品名词，每格只含机位+画面风格，AI 排版+方位功能词图注）：
 
 ```markdown
-## ★ 一、空间锚点图（俯视平面布局图，1条提示词）—— 生成流程第 1 步，单独生成、特殊列出
+## 第一部分：空间锚点图（1 条 · 文生图）
+> 复制本节提示词，用文生图单独生成，保存为"空间锚点图"。本提示词是全流程唯一允许描绘空间布局与物品位置的提示词。
 
-> 本节是全份提示词中唯一"先生成、独立生成"的图：请先单独生成此图并保存为"空间锚点图"，
-> 作为后续所有图的空间基准；之后生成宏观图与各特写时，把它（或其局部裁剪）作为参考图输入生图工具。
-> 其余所有图的布局与方位以此图为准。
+Watercolor / ink-wash painting style, top-down isometric aerial view, architectural floor plan / site map style. A rectangular third-floor archive room ... Label compass directions N / S / E / W, mark the scale, place six numbered zone markers ... note: "this plan is the only source of layout and orientation for all other views."
 
-Top-down isometric aerial view of a rectangular third-floor archive reading room (古籍库), ...,
-16m wide × 22m deep × 4m ceiling. N wall = double wooden entrance door; S wall = casement window;
-E/W walls = five rows of floor-to-ceiling wooden bookshelves; central corridor runs north-south.
-Label six shot positions as numbered zones ①-⑥ ... Mark N/S/E/W and the scale ratio;
-this image is the spatial anchor — the layout and orientation of ALL other images must follow it.
-`Watercolor / ink-wash painting style, Top-down isometric aerial view, ...`
+## 第二部分：最终合成图（1 条 · 一整段提示词 · 一次图生图）
+> 将空间锚点图作为参考图/垫图输入；复制整段提示词一次图生图；AI 的空间与画面内容唯一来自锚点图，提示词不含任何物品/结构描写。
 
-## 二、宏观整体图 —— 生成流程第 2 步，以锚点图为参考图
-
-> 以空间锚点图为参考图（图生图）生成。主视角方位：从北墙入口向内看，面朝南……
-
-### 场景1 - 古籍库·门口 - 近景→中全景
-**以空间锚点图对应部位为参考（图生图）**
-空间定位：位于北墙入口双开木门外侧约1.5m处，面朝南（正对门扇）……
+the spatial reference image is the ONLY source of room layout and scene content — follow it strictly; do not infer or alter the room structure or any objects from text. Compose a single multi-panel storyboard grid: one full-width top panel labeled MACRO, and below it six close-up panels in 2 columns × 3 rows, each with its caption label drawn beneath it. Top panel MACRO: camera at a high vantage over the reference plan's north side, facing south; ink-wash, cold low-saturation tones, deep shadow, generous negative space. Row 1 panel 1, SCENE 1: NORTH ENTRY: camera at the reference plan's north side, at the position marked SCENE 1, facing south, eye level; ink-wash, cold low-saturation tones, deep shadow, one cold light accent. ...（每格均只含"机位+画面风格"）
 ```
 
-> 使用时先单独生成 ★ 锚点图，再以它为参考图生成宏观图与各特写（详见"两步生图流程"）。
+> 图注用"方位+功能词"命名（如 SCENE 1: NORTH ENTRY），贯彻零物品名词原则；使用流程见上文"两步生图流程"。
 
 ### 画风切换示例（同一输入，两种画风）
 
@@ -208,16 +197,17 @@ Photorealistic, ...   →   Anime style, ...
   - `examples/romance-anime/`（都市言情·雨夜便利店 × 动漫风 Anime style）
   - `examples/suspense-inkwash/`（悬疑惊悚·雨夜档案馆 × 水墨风 Watercolor / ink-wash）
   - `examples/scifi-cyberpunk/`（科幻·赛博都市 × 赛博朋克风 Cyberpunk style）
-- `examples/suspense-inkwash/` —— 空间一致性机制的两版对比产物：
+- `examples/suspense-inkwash/` —— 空间一致性机制的各版本产物（`场景AI绘图提示词_v1.11.1.md` 为**最终版**：两部分结构 + 零物品名词 + 方位功能词图注）：
   - `场景AI绘图提示词_v1.4.0.md`（空间基准表 + 空间定位行）
-  - `场景AI绘图提示词_v1.5.0.md`（★空间锚点图特殊列出 + 两步生成流程，推荐参考）
+  - `场景AI绘图提示词_v1.5.0.md`（★锚点图特殊列出）
+  - `场景AI绘图提示词_v1.11.1.md`（最终版：锚点图为唯一来源 + 机位/风格 + AI 排版 + 方位功能词图注）
 
 ## 测试与已知约束
 
 - 开发阶段做了两轮端到端测试（每个测试由独立子代理加载 skill 完整执行）：
   - **写实风测试（v1.0→v1.1）**：言情/悬疑/日常三类型片段，修复 14 条规范缺陷（优先级规则、统一设定表等）
   - **画风切换测试（v1.2→v1.3）**：言情×动漫 / 悬疑×水墨 / 科幻×赛博朋克三组，验证画风切换生效（三阶段后缀与"画风：…"标注一致、核心功能无损），修复 5 条画风细则缺陷——布局图后缀句首补画风词、每镜字段计数口径（5 顶层字段）、光照措辞随画风适配（规则 6）、画风不改变剧情氛围（规则 7）、写实措辞残留处理
-  - **空间一致性（v1.4→v1.5）**：新增"空间基准表"与"空间定位"机制（v1.4.0），v1.5.0 将**空间锚点图特殊列出**——先单独生成锚点图，再以锚点图为参考图（图生图/垫图/ControlNet）生成宏观图与特写，固定两步生成流程；已用雨夜档案馆（suspense-inkwash）两版验证（`场景AI绘图提示词_v1.4.0.md`、`_v1.5.0.md`），子代理确认 ★锚点图单独成节、宏观图/特写均标注"以锚点图为参考图"；已知局限——纯文生图模型无跨图空间记忆，文字约束只能降低漂移概率
+  - **空间一致性（v1.4→v1.11.1）**：新增"空间基准表"（v1.4.0）；v1.5.0 锚点图特殊列出；v1.6.0 双锚定；v1.7.0 一整段提示词一次图生图；v1.8.0 排版由 AI 完成；v1.9.0 每格序号+名称图注；v1.10.0 空间唯一来源=锚点图；v1.11.0 图生图提示词只含机位+画面风格（零物品名词）；**v1.11.1 图注改用"方位+功能词"命名（如 SCENE 1: NORTH ENTRY）**；已用雨夜档案馆验证（`场景AI绘图提示词_v1.11.1.md` 为最终版）；另用三种新片段做场景图部分专项测试（便利店室内 / 老宅多房间楼梯 / 天台半户外×赛博朋克），验证零物品名词、多房间与半户外空间基准处理，测试产物已清理；已知局限——依赖工具参考图能力，不支持参考图的工具无法保证空间一致
 - **名称约束**：SKILL.md 的 frontmatter `name` 必须是 kebab-case（`novel-switch-ai-video-prompts`）——这是官方校验器（quick_validate.py）与 DeepSeek Harness 的共同要求；文件夹名可保留空格展示名（`Novel-Switch-AI video prompts`）。
 - **中文 Windows 校验**：运行 quick_validate.py 前需设置 `PYTHONUTF8=1`。
 - 每次修改 SKILL.md 后建议重新运行校验并重新同步到 `$DSH_HOME/skills`。
