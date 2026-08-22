@@ -15,7 +15,7 @@ description: >-
   or AI scene images — even if they only say "改编" or "做成短剧". Trigger on Chinese and
   English phrasings alike.
 metadata:
-  version: 1.11.1
+  version: 1.12.0
   license: MIT
   tags: [screenwriting, short-drama, video-generation, ai-prompting, novel-adaptation]
 ---
@@ -317,6 +317,21 @@ metadata:
 - **排版一致性**：排版由 AI 在第二部分一次完成——宏观大格置顶、特写按空间动线排列、**每格带"序号+名称"图注（方位+功能词命名，如 SCENE 1: NORTH ENTRY，宏观标 MACRO）**；禁止出现格子内容重复、宏观图不在顶部或图注缺失的情况。
 - **拍摄建议**：所有格子统一在同一时间设定下生成，禁止出现相互冲突的天光/夜景/色调；特写格不描写人物（纯空景）。
 
+### 六、画风提示词（独立小节，供用户复用于任意同画风图片）
+
+除两部分场景提示词外，额外输出一段**纯画风提示词**，独立成节（置于"一致性提醒"之后）：
+
+- **只描述画风本身，不包含任何场景内容**：不得出现地点、物品、道具、人物、建筑结构等词；它只回答"这张图是什么画风"。
+- **用户用途（写给用户）**：复制本段提示词，自行拼接简短内容词（如"a character portrait"、"a teacup"），即可生成与场景**同画风**的其他图片（角色图、道具图、衍生场景、海报等），保证全项目视觉风格统一。
+- **画风提示词结构（英文，一段）**：
+  1. 画风流派（如 `Watercolor / ink-wash painting style`、`Anime style`、`Photorealistic`、`Cyberpunk style`）
+  2. 渲染方式（如 `soft flowing ink textures, blurred softened outlines` / `cel-shading, clean line art`）
+  3. 光影氛围（如 `dim cold-blue rainy-night ambient light with faint cool-green accents`）
+  4. 色调（如 `low-saturation muted palette: ink-brown, cold grey-blue, paper cream`）
+  5. 质感（如 `generous negative space, deep ink shadows`）
+  6. 画质后缀（`8k hyper-detailed, unified color grading`）
+- **可独立成图**：本段提示词 + 任意内容词必须能独立生成一张同画风的图，不得依赖场景提示词中的任何词。
+
 ---
 
 ## 输出与交付要求
@@ -345,5 +360,6 @@ metadata:
 - [ ] 场景提示词：`[主要光源方向]` 占位符已替换为具体光源；特写格视角回推自剧本【镜头】字段；重复编号已按子位置拆分
 - [ ] 空间：**提示词全文无房间布局与物品空间描写**（不写"北墙=门/南墙=窗/书架向暗处退远/门缝光带"等）；第二部分开头声明"锚点图是空间唯一来源"；每格只有"机位（从锚点图何处、面朝何方）+ 画面风格（画风/光效氛围）"，机位与锚点图坐标一致
 - [ ] 排版：第二部分提示词含 AI 排版指令（宏观大格置顶 + 特写按空间动线排列 + **每格"序号+名称"图注，方位+功能词命名、不沾物品名词**，宏观标 MACRO）；输出文件附格子索引（含中文名称对照）
+- [ ] 画风提示词：已单独输出"六、画风提示词"小节（纯画风、零场景内容词，含流派/渲染/光影/色调/质感/画质六要素），可与任意内容词拼接独立成图
 - [ ] 画风：三阶段画风一致（每份文件开头标注"画风：…"）；英文画风后缀与画风配置相符（默认 Photorealistic，用户指定画风时已替换）；布局图后缀句首已补入画风词；与画风冲突的写实措辞（realistic material textures / commercial photography style 等）已按规则 6 适配
 - [ ] 三份文件：统一设定表、空间基准表、角色、场景、光线方向、材质前后一致
